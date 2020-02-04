@@ -319,15 +319,12 @@ echo "SOURCE_DATE_EPOCH = $env:SOURCE_DATE_EPOCH"
 Run "$make -j$jobs 2>&1" $true
 Time-Log "$make -j$jobs"
 
-Run "$make install-nodoc"
+Run "$make install-nodoc ; ruby 1_2_post_install.rb $bits $install"
 Time-Log "$make install-nodoc"
 
 Files-Unhide $files
 
 cd $d_repo
-
-# run with old ruby
-ruby 1_2_post_install.rb $bits $install
 
 # run with new ruby (gem install, exc)
 $env:PATH = "$d_install/bin;$d_mingw;$d_repo/git/cmd;$d_msys2/usr/bin;$base_path"
