@@ -142,19 +142,19 @@ function Create-Folders {
 
 #——————————————————————————————————————————————————————————————————————————— Run
 # Run a command and check for error
-function Run($exec, $silent = $false) {
+function Run($e_msg, $exec) {
   $orig = $ErrorActionPreference
   $ErrorActionPreference = 'Continue'
 
   if ($is_actions) {
-    echo "##[group]$(color $exec yel)"
+    echo "##[group]$(color $e_msg yel)"
   } else {
-    echo "$exec"
+    echo "$e_msg"
   }
   
-  if ($silent) { iex $exec -ErrorAction SilentlyContinue }
-  else         { iex $exec }
-  Check-Exit $exec
+  &$exec
+
+  Check-Exit $eMsg
   $ErrorActionPreference = $orig
   if ($is_actions) { echo ::[endgroup] }
 }
@@ -295,41 +295,44 @@ cd $d_ruby
 $ts = $(git log -1 --format=%at).Trim()
 if ($ts -match '\A\d+\z' -and $ts -gt "1540000000") {
   $env:SOURCE_DATE_EPOCH = [String][int]$ts
+  # echo "SOURCE_DATE_EPOCH = $env:SOURCE_DATE_EPOCH"
 }
 
-Run "sh -c `"autoreconf -fi`""
+Run "sh -c `"autoreconf -fi`"" { sh -c "autoreconf -fi" }
 
 cd $d_build
 Time-Log "start"
 
 $config_args = "--build=$chost --host=$chost --target=$chost --with-out-ext=pty,syslog"
-Run "sh -c `"../ruby/configure --disable-install-doc --prefix=$d_install $config_args`""
+Run "sh -c `"../ruby/configure --disable-install-doc --prefix=$d_install $config_args`"" {
+  sh -c "../ruby/configure --disable-install-doc --prefix=$d_install $config_args"
+}
 Time-Log "configure"
 
 # download gems & unicode files
-Run "$make -j$jobs update-unicode"
-Run "$make -j$jobs update-gems"
-Time-Log "$make -j$jobs update-unicode, $make -j$jobs update-gems"
+Run "make -j$jobs update-unicode" { iex "make -j$jobs update-unicode" }
+Run "make -j$jobs update-gems"    { iex "make -j$jobs update-gems" }
+Time-Log "make -j$jobs update-unicode, make -j$jobs update-gems"
 
 # below sets some directories to normal in case they're set to read-only
 Remove-Read-Only $d_ruby
 Remove-Read-Only $d_build
 
-echo "SOURCE_DATE_EPOCH = $env:SOURCE_DATE_EPOCH"
-Run "$make -j$jobs 2>&1" $true
-Time-Log "$make -j$jobs"
-
-Run "$make install-nodoc ; ruby 1_2_post_install.rb $bits $install"
-Time-Log "$make install-nodoc"
+Run "make -j$jobs 2>&1" { iex "make -j$jobs 2>&1" }
+Time-Log "make -j$jobs"
 
 Files-Unhide $files
 
-cd $d_repo
+Run "make install-nodoc" {
+  make install-nodoc
+  cd $d_repo
+  ruby 1_2_post_install.rb $bits $install
+  $env:PATH = "$d_install/bin;$d_mingw;$d_repo/git/cmd;$d_msys2/usr/bin;$base_path"
+  ruby 1_3_post_install.rb $bits $install  
+}
+Time-Log "make install-nodoc"
 
-# run with new ruby (gem install, exc)
-$env:PATH = "$d_install/bin;$d_mingw;$d_repo/git/cmd;$d_msys2/usr/bin;$base_path"
-ruby 1_3_post_install.rb $bits $install
-Time-Log "post install processing"
+#Time-Log "post install processing"
 
 Strip-Build
 Strip-Install

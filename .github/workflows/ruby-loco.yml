@@ -59,6 +59,13 @@ jobs:
         with:
           ruby_path: ./ruby-mingw
 
+      - name: save log artifact
+        if: success() || failure()
+        uses: actions/upload-artifact@v1
+        with:
+          name: Logs
+          path: ./logs
+
   mswin:
     strategy:
       matrix:
