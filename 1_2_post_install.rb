@@ -149,6 +149,8 @@ EOT
   def add_licenses
     #IO.copy_stream("#{D_RUBY}/LEGAL"     , "#{D_INSTALL}/LEGAL Ruby")
     #IO.copy_stream("#{D_RI2}/LICENSE.txt", "#{D_INSTALL}/LICENSE Ruby Installer.txt")
+    cp "#{D_RUBY}/BSDL"      , "#{D_INSTALL}/BSDL"
+    cp "#{D_RUBY}/COPYING"   , "#{D_INSTALL}/COPYING Ruby"
     cp "#{D_RUBY}/LEGAL"     , "#{D_INSTALL}/LEGAL Ruby"
     cp "#{D_RI2}/LICENSE.txt", "#{D_INSTALL}/LICENSE Ruby Installer.txt"
   end

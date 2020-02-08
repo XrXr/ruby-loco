@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - 'actions'
-#  schedule:
-#  - cron: '0 3,9,16 * * *'
+  schedule:
+    - cron: '0 3,9,16 * * *'
 
 jobs:
   mingw:
@@ -63,7 +63,7 @@ jobs:
         if: success() || failure()
         uses: actions/upload-artifact@v1
         with:
-          name: Logs
+          name: Logs mingw
           path: ./logs
 
   mswin:
@@ -129,7 +129,7 @@ jobs:
         id: commit_info
 
       - name: load ruby
-        uses: eregon/use-ruby-action@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7
 
@@ -237,6 +237,13 @@ jobs:
 
       - name: CLI Check
         run: ./mswin_cli_test.ps1
+
+      - name: copy misc files
+        shell: cmd
+        run: |
+          copy %cd%\src\BSDL    %cd%\ruby-mswin\BSDL
+          copy %cd%\src\COPYING %cd%\ruby-mswin\COPYING
+          copy %cd%\src\LEGAL   %cd%\ruby-mswin\LEGAL
 
       - name: upload asset
         timeout-minutes: 5
