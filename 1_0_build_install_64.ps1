@@ -43,17 +43,17 @@ function Apply-Install-Patches($p_dir) {
 
 #————————————————————————————————————————————————————————————————— Files-Hide
 # Hides files for compiling/linking
-function Files-Hide($files) {
-  foreach ($f in $files) {
+function Files-Hide($f_ary) {
+  foreach ($f in $f_ary) {
     if (Test-Path -Path $f -PathType Leaf ) { ren $f ($f + '__') }
   }
 }
 
 #————————————————————————————————————————————————————————————————— Files-Unhide
 # UnHides files previously hidden
-function Files-Unhide($files) {
-  foreach ($f in $files) {
-    if (Test-Path -Path "$f__" -PathType Leaf ) { ren ($f + '__') $f }
+function Files-Unhide($f_ary) {
+  foreach ($f in $f_ary) {
+    if (Test-Path -Path ($f + '__') -PathType Leaf ) { ren ($f + '__') $f }
   }
 }
 

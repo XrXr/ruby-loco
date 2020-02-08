@@ -158,7 +158,7 @@ function Finish {
   if ($is_actions) {
     echo "Actions ImageVersion: $env:ImageVersion"
   } elseif ($is_av) {
-    echo"Build worker image: $env:APPVEYOR_BUILD_WORKER_IMAGE"
+    echo "Build worker image: $env:APPVEYOR_BUILD_WORKER_IMAGE"
   }
   if ($exit -ne 0) { exit 1 }
 }
